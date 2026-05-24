@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>界园 · 卜岁斋 — 博士专属命理占卜</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- 背景层：界园背景图 -->
+    <div class="bg-layer"></div>
+
+    <!-- 金松装饰 -->
+    <div class="pine pine-left"></div>
+    <div class="pine pine-right"></div>
+
+    <!-- 云纹装饰 -->
+    <div class="cloud cloud-1"><div class="cloud-layer"></div></div>
+    <div class="cloud cloud-2"><div class="cloud-layer"></div></div>
+    <div class="cloud cloud-3"><div class="cloud-layer"></div></div>
+    <div class="cloud cloud-4"><div class="cloud-layer"></div></div>
+
+    <!-- 星光粒子 -->
+    <div class="starlight star-1"></div>
+    <div class="starlight star-2"></div>
+    <div class="starlight star-3"></div>
+    <div class="starlight star-4"></div>
+    <div class="starlight star-5"></div>
+    <div class="starlight star-6"></div>
+    <div class="starlight star-7"></div>
+    <div class="starlight star-8"></div>
+
+    <!-- 顶部标题 -->
+    <header class="header">
+        <div class="title-group">
+            <span class="title-badge">趋吉</span>
+            <div class="lotuspark"></div>
+            <span class="title-badge">避凶</span>
+        </div>
+        <h1 class="title">界园 · 卜岁斋</h1>
+        <p class="subtitle">景由眼见，由心生。博士所问，贫道掷币以观卦象。</p>
+    </header>
+
+    <!-- 对话区域 -->
+    <main class="chat-container">
+        <div class="chat-box" id="chatBox">
+            <div class="message master-msg">
+                <div class="msg-avatar">玄</div>
+                <div class="msg-bubble">
+                    <p>吱呀——园门已开。</p>
+                    <p>贫道玄冥子，界园听运亭值守。博士踏入此园，便是有缘。投一枚通宝入亭，贫道为你观其正反、断其卦象。</p>
+                    <p>抽卡运数、关卡吉凶、干员命格——皆可一问。秉烛行仪，岁秽自清。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading"></div>
+            <div class="loading-spark"></div>
+            <span id="loadingText">通宝入亭，待其落定...</span>
+        </div>
+    </main>
+
+    <!-- 输入区域 -->
+    <footer class="input-area">
+        <div class="input-wrapper">
+            <input
+                type="text"
+                id="questionInput"
+                placeholder="博士欲问何事？投币入亭，贫道为你解卦——"
+                autocomplete="off"
+            >
+            <button id="sendBtn">投币问卦</button>
+        </div>
+        <p class="input-hint">按 Enter 投币 · 铜锣一响，卦象自现</p>
+    </footer>
+
+    <!-- 底部印章 -->
+    <div class="stamp">已录</div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const questionInput = document.getElementById('questionInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+
+        const loadingPhrases = [
+            '通宝入亭，待其落定...',
+            '烛火摇曳，卦象渐显...',
+            '岁秽淤积，贫道正在化解...',
+            '秉烛行仪，莫急莫急...',
+            '景中藏境，待贫道细观...',
+            '奇岩异草，皆为卦象...',
+            '园深路远，卦象将至...',
+            '正在翻阅《界园玄览》...',
+        ];
+
+        let isLoading = false;
+
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = 'message ' + (role === 'user' ? 'user-msg' : 'master-msg');
+            const avatar = document.createElement('div');
+            avatar.className = 'msg-avatar';
+            avatar.textContent = role === 'user' ? '博' : '亭';
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble';
+            bubble.innerHTML = '<p>' + text.replace(/\n/g, '</p><p>') + '</p>';
+            div.appendChild(avatar);
+            div.appendChild(bubble);
+            chatBox.appendChild(div);
+            scrollToBottom();
+        }
+
+        function startLoading() {
+            isLoading = true;
+            loading.style.display = 'flex';
+            sendBtn.disabled = true;
+            questionInput.disabled = true;
+            let idx = 0;
+            loadingText.textContent = loadingPhrases[0];
+            const timer = setInterval(() => {
+                idx = (idx + 1) % loadingPhrases.length;
+                loadingText.textContent = loadingPhrases[idx];
+            }, 1800);
+            loading._timer = timer;
+        }
+
+        function stopLoading() {
+            isLoading = false;
+            loading.style.display = 'none';
+            clearInterval(loading._timer);
+            sendBtn.disabled = false;
+            questionInput.disabled = false;
+            questionInput.focus();
+        }
+
+        async function sendQuestion() {
+            const question = questionInput.value.trim();
+            if (!question || isLoading) return;
+            questionInput.value = '';
+            addMessage('user', question);
+            startLoading();
+            try {
+                const resp = await fetch('/api/divine', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question }),
+                });
+                const data = await resp.json();
+                stopLoading();
+                if (data.error) {
+                    addMessage('master', '铜锣哑了，亭中钱盒空空……' + data.error);
+                } else {
+                    addMessage('master', data.answer);
+                }
+            } catch (err) {
+                stopLoading();
+                addMessage('master', '岁时紊乱，通宝失了灵……博士请稍后再掷。');
+            }
+        }
+
+        sendBtn.addEventListener('click', sendQuestion);
+        questionInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendQuestion();
+        });
+        scrollToBottom();
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+# 环境变量 (敏感信息，严禁提交)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+
+# 虚拟环境
+venv/
+env/
+.venv/
+ENV/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 日志
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+
+# 数据库
+*.db
+*.sqlite
+*.sqlite3
+
+# 分发/打包
+dist/
+build/
+*.egg-info/
