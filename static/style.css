@@ -838,25 +838,25 @@ body {
 .footer-info {
     position: relative;
     z-index: 1;
-    padding: 16px 20px 20px;
+    padding: 12px 20px;
     text-align: center;
     background: linear-gradient(180deg, transparent 0%, rgba(255, 230, 240, 0.3) 100%);
     margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
 .disclaimer {
     font-size: 11px;
     color: rgba(93, 58, 74, 0.7);
-    line-height: 1.6;
-    margin-bottom: 8px;
-}
-
-.disclaimer p {
-    margin: 0;
+    line-height: 1.5;
 }
 
 .beian {
-    font-size: 12px;
+    font-size: 11px;
     color: rgba(93, 58, 74, 0.8);
 }
 
