@@ -10,11 +10,15 @@ from dotenv import load_dotenv
 from langchain.schema import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 from duckduckgo_search import DDGS
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+# 处理反向代理子路径（X-Forwarded-Prefix）
+app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 
 # 初始化限流器 - 每分钟最多100次请求
 limiter = Limiter(
